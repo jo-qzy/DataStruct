@@ -43,6 +43,7 @@ void HashInit(HashBucket* hb, size_t capacity)
 	hb->_capacity = capacity;
 	hb->_capacity = GetPrime(hb);
 	hb->_tables = (HashNode**)malloc(sizeof(HashNode*) * hb->_capacity);
+	assert(hb->_tables);
 	hb->_size = 0;
 	for (size_t i = 0; i < hb->_capacity; i++)
 	{
@@ -58,7 +59,7 @@ static size_t HashFunc(HashBucket* hb, HashDataType data)
 
 static HashNode* BuyNewHashNode(HashDataType data)
 {
-	HashNode* new_node = (HashNode*)malloc(sizeof(struct HashBucketNode));
+	HashNode* new_node = (HashNode*)malloc(sizeof(HashNode));
 	new_node->_data = data;
 	new_node->_next = NULL;
 	return new_node;
@@ -224,6 +225,7 @@ bool HashRemove(HashBucket* hb, HashDataType data)
 
 size_t HashSize(HashBucket* hb)
 {
+	assert(hb);
 	return hb->_size;
 }
 
