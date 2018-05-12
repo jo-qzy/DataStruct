@@ -12,11 +12,11 @@ typedef struct HashBucketNode
 {
 	HashDataType _data;
 	struct HashBucketNode* _next;
-}*HashNode;
+}HashNode;
 
 typedef struct HashBucket
 {
-	HashNode* _tables;
+	HashNode** _tables;
 	size_t _size;
 	size_t _capacity;
 }HashBucket;
@@ -24,14 +24,15 @@ typedef struct HashBucket
 void HashInit(HashBucket* hb, size_t capacity);//初始化哈希桶
 
 static size_t HashFunc(HashBucket* hb, HashDataType data);//哈希函数
-static HashNode BuyNewHashNode(HashDataType data);//创建新链节点
+static HashNode* BuyNewHashNode(HashDataType data);//创建新链节点
 static void CheckCapacity(HashBucket* hb);//检查空间，确保效率
 static size_t GetPrime(HashBucket* hb);
 static void HashPrint(HashBucket* hb);
 
 bool HashInsert(HashBucket* hb, HashDataType data);//插入
-bool HashFind(HashBucket* hb, HashDataType data);//查找某个元素是否存在
+HashNode* HashFind(HashBucket* hb, HashDataType data);//查找某个元素是否存在
 bool HashRemove(HashBucket* hb, HashDataType data);//删除
+size_t HashSize(HashBucket* hb);
 
 void TestHashTable();//测试用例
 
@@ -41,7 +42,7 @@ void HashInit(HashBucket* hb, size_t capacity)
 	assert(hb);
 	hb->_capacity = capacity;
 	hb->_capacity = GetPrime(hb);
-	hb->_tables = (HashNode*)malloc(sizeof(HashNode) * hb->_capacity);
+	hb->_tables = (HashNode**)malloc(sizeof(HashNode*) * hb->_capacity);
 	hb->_size = 0;
 	for (size_t i = 0; i < hb->_capacity; i++)
 	{
@@ -55,9 +56,9 @@ static size_t HashFunc(HashBucket* hb, HashDataType data)
 	return data % hb->_capacity;
 }
 
-static HashNode BuyNewHashNode(HashDataType data)
+static HashNode* BuyNewHashNode(HashDataType data)
 {
-	HashNode new_node = (HashNode)malloc(sizeof(struct HashBucketNode));
+	HashNode* new_node = (HashNode*)malloc(sizeof(struct HashBucketNode));
 	new_node->_data = data;
 	new_node->_next = NULL;
 	return new_node;
@@ -69,8 +70,8 @@ static void CheckCapacity(HashBucket* hb)
 	if (hb->_size == hb->_capacity)
 	{
 		HashBucket new_hb;
-		HashNode cur = NULL;
-		HashNode next = NULL;
+		HashNode* cur = NULL;
+		HashNode* next = NULL;
 		HashInit(&new_hb, hb->_capacity);
 		for (size_t i = 0; i < hb->_capacity; i++)
 		{
@@ -78,9 +79,11 @@ static void CheckCapacity(HashBucket* hb)
 			cur = *(hb->_tables + i);
 			while (cur)
 			{
+				//之所以可以头插是因为数据没有重复
 				next = cur->_next;
-				HashInsert(&new_hb, cur->_data);
-				free(cur);
+				size_t index = HashFunc(&new_hb, cur->_data);
+				cur->_next = *(new_hb._tables + index);
+				*(new_hb._tables + index) = cur;
 				cur = next;
 			}
 		}
@@ -120,17 +123,18 @@ static void HashPrint(HashBucket* hb)
 {
 	//辅助打印函数
 	assert(hb);
-	HashNode cur = NULL;
+	HashNode* cur = NULL;
 	for (size_t i = 0; i < hb->_capacity; i++)
 	{
 		cur = *(hb->_tables + i);
+		printf("tables[%d]", i);
 		while (cur)
 		{
-			printf("%d ", cur->_data);
+			printf("->%d", cur->_data);
 			cur = cur->_next;
 		}
+		printf("->NULL\n");
 	}
-	printf("\n");
 }
 
 bool HashInsert(HashBucket* hb, HashDataType data)
@@ -138,8 +142,8 @@ bool HashInsert(HashBucket* hb, HashDataType data)
 	assert(hb);
 	CheckCapacity(hb);
 	size_t index = HashFunc(hb, data);
-	HashNode cur = *(hb->_tables + index);
-	HashNode prev = cur;
+	HashNode* cur = *(hb->_tables + index);
+	HashNode* prev = cur;
 	if (cur == NULL)
 	{
 		//该位置没有任何节点，直接插入
@@ -150,6 +154,7 @@ bool HashInsert(HashBucket* hb, HashDataType data)
 		//该位置已有节点，找寻合适位置插入
 		while (cur)
 		{
+			//不允许头插，因为可能有数据重复
 			if (cur->_data == data)
 			{
 				return false;
@@ -163,28 +168,28 @@ bool HashInsert(HashBucket* hb, HashDataType data)
 	return true;
 }
 
-bool HashFind(HashBucket* hb, HashDataType data)
+HashNode* HashFind(HashBucket* hb, HashDataType data)
 {
 	assert(hb);
 	size_t index = HashFunc(hb, data);
-	HashNode cur = *(hb->_tables + index);
+	HashNode* cur = *(hb->_tables + index);
 	while (cur)
 	{
 		if (cur->_data == data)
 		{
-			return true;
+			return cur;
 		}
 		cur = cur->_next;
 	}
-	return false;
+	return NULL;
 }
 
 bool HashRemove(HashBucket* hb, HashDataType data)
 {
 	assert(hb);
 	size_t index = HashFunc(hb, data);
-	HashNode cur = *(hb->_tables + index);
-	HashNode prev = cur;
+	HashNode* cur = *(hb->_tables + index);
+	HashNode* prev = cur;
 	while (cur)
 	{
 		if (cur->_data == data)
@@ -217,20 +222,35 @@ bool HashRemove(HashBucket* hb, HashDataType data)
 	}
 }
 
+size_t HashSize(HashBucket* hb)
+{
+	return hb->_size;
+}
+
 void TestHashTable()
 {
 	HashBucket hb;
 	HashInit(&hb, 0);
 
 	srand((unsigned)time(0));
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		HashInsert(&hb, rand() % 200);
 	}
 	HashPrint(&hb);
+	printf("\n");
+
+	for (int i = 0; i < 50; i++)
+	{
+		HashInsert(&hb, rand() % 200);
+	}
+	HashPrint(&hb);
+	printf("\n");
+
 	for (int i = 0; i < 200; i++)
 	{
 		HashRemove(&hb, rand() % 200);
 	}
 	HashPrint(&hb);
+	
 }
