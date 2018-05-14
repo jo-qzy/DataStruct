@@ -12,10 +12,13 @@ typedef struct Bitmap
 	size_t _range;
 }Bitmap;
 
-void BitmapInit(Bitmap* bm, size_t range);
-void BitmapSet(Bitmap* bm, size_t num);
-void BitmapReset(Bitmap* bm, size_t num);
-bool BitmapTest(Bitmap* bm, size_t num);
+void BitmapInit(Bitmap* bm, size_t range);//初始化
+void BitmapSet(Bitmap* bm, size_t num);//将某个数的位置置为1
+void BitmapReset(Bitmap* bm, size_t num);//将某个数的位置置为0
+bool BitmapTest(Bitmap* bm, size_t num);//判断某个数是否存在
+void BitmapDestroy(Bitmap* bm);//销毁位图
+
+void TestBitmap();//测试用例
 
 void BitmapInit(Bitmap* bm, size_t range)
 {
@@ -28,7 +31,7 @@ void BitmapInit(Bitmap* bm, size_t range)
 
 void BitmapSet(Bitmap* bm, size_t num)
 {
-	assert(bm && num < bm->_range);
+	assert(bm);
 	size_t index = num / 32;
 	size_t position = num % 32;
 	size_t set = 1;
@@ -37,7 +40,7 @@ void BitmapSet(Bitmap* bm, size_t num)
 
 void BitmapReset(Bitmap* bm, size_t num)
 {
-	assert(bm && num < bm->_range);
+	assert(bm);
 	size_t index = num / 32;
 	size_t position = num % 32;
 	size_t set = 1;
@@ -46,11 +49,19 @@ void BitmapReset(Bitmap* bm, size_t num)
 
 bool BitmapTest(Bitmap* bm, size_t num)
 {
-	assert(bm && num < bm->_range);
+	assert(bm);
 	size_t index = num / 32;
 	size_t position = num % 32;
 	size_t cmp = 1;
 	return ((*(bm->_bit + index)) & (cmp << position)) ? true : false;
+}
+
+void BitmapDestroy(Bitmap* bm)
+{
+	assert(bm);
+	free(bm->_bit);
+	bm->_bit = NULL;
+	bm->_range = 0;
 }
 
 void TestBitmap()
@@ -81,4 +92,6 @@ void TestBitmap()
 	printf("%d\n", BitmapTest(&bm, 555));
 	printf("%d\n", BitmapTest(&bm, 789));
 	printf("%d\n", BitmapTest(&bm, 5));
+
+	BitmapDestroy(&bm);
 }
