@@ -107,5 +107,5 @@ void TestBloomFilter()
 	printf("%d\n", BloomFilterTest(&bf, "perfect"));
 	printf("%d\n", BloomFilterTest(&bf, "great"));
 
-	BitmapDestroy(&bf);
+	BloomFilterDestroy(&bf);
 }
