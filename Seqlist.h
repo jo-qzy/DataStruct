@@ -1,5 +1,4 @@
 //数据结构：顺序表练习，实现增删查改，以及排序等操作
-
 #pragma once
 
 #include <string.h>
@@ -16,23 +15,36 @@ typedef struct Seqlist
 	size_t _size;
 }Seqlist;
 
-void SeqlistInit(Seqlist *pSeq);
-void SeqlistInsert(Seqlist *pSeq, size_t pos, DataType data);
-void SeqlistErase(Seqlist *pSeq, size_t pos);
-void SeqlistPushFront(Seqlist *pSeq, DataType data);
-void SeqlistPushBack(Seqlist *pSeq, DataType data);
-void SeqlistPopFront(Seqlist *pSeq);
-void SeqlistPopBack(Seqlist *pSeq);
-int SeqlistFind(Seqlist *pSeq, DataType data);
-void SeqlistModify(Seqlist *pSeq, size_t pos, DataType data);
-void SeqlistRemove(Seqlist *pSeq, DataType data);
-void SeqlistRemoveAll(Seqlist *pSeq, DataType data);
+void SeqlistInit(Seqlist *pSeq);//初始化静态顺序表
+void SeqlistInsert(Seqlist *pSeq, size_t pos, DataType data);//插入
+void SeqlistErase(Seqlist *pSeq, size_t pos);//按下表删除元素
+void SeqlistPushFront(Seqlist *pSeq, DataType data);//在顺序表最前面插入元素
+void SeqlistPushBack(Seqlist *pSeq, DataType data);//在顺序表最后面插入元素
+void SeqlistPopFront(Seqlist *pSeq);//删除顺序表最前元素
+void SeqlistPopBack(Seqlist *pSeq);//删除顺序表最后元素
+int SeqlistFind(Seqlist *pSeq, DataType data);//查找指定元素
+void SeqlistModify(Seqlist *pSeq, size_t pos, DataType data);//修改指定元素
+void SeqlistRemove(Seqlist *pSeq, DataType data);//按数据删除元素
+void SeqlistRemoveAll(Seqlist *pSeq, DataType data);//按数据删除所有该数据元素
 
-void SeqlistBubbleSort(Seqlist *pSeq);
-void SeqlistSelectSort(Seqlist *pSeq);
-void SeqlistBinarySearch(Seqlist *pSeq, DataType data);
+void SeqlistBubbleSort(Seqlist *pSeq);//顺序表冒泡排序
+void SeqlistSelectSort(Seqlist *pSeq);//顺序表选择排序
+void SeqlistBinarySearch(Seqlist *pSeq, DataType data);//顺序表的二分查找
 
-void SeqlistPrint(Seqlist *pSeq);
+void SeqlistPrint(Seqlist *pSeq);//顺序表的打印
+void TestSeqList();//测试用例
+
+//动态分配部分
+typedef struct V_Seqlist
+{
+	DataType *array;
+	size_t _size;
+	size_t capicity;
+}V_Seqlist;
+
+void V_SeqlistInit(V_Seqlist *pSeq,size_t capicity);//动态表初始化化
+void V_SeqlistPushBack(V_Seqlist *pSeq, DataType data);//在最后添加元素
+void V_SeqlistDestroy(V_Seqlist *pSeq);//销毁动态表
 
 //顺序表基本功能函数实现部分
 void SeqlistInit(Seqlist *pSeq)
@@ -245,19 +257,6 @@ void SeqlistBinarySearch(Seqlist *pSeq, DataType data)
 	return;
 }
 
-
-//动态分配部分
-typedef struct V_Seqlist
-{
-	DataType *array;
-	size_t _size;
-	size_t capicity;
-}V_Seqlist;
-
-void V_SeqlistInit(V_Seqlist *pSeq,size_t capicity);
-void V_SeqlistPushBack(V_Seqlist *pSeq, DataType data);
-void V_SeqlistDestroy(V_Seqlist *pSeq);
-
 void V_SeqlistInit(V_Seqlist *pSeq, size_t capicity)
 {
 	pSeq->capicity = capicity;
@@ -280,4 +279,30 @@ void V_SeqlistDestroy(V_Seqlist *pSeq)
 	free(pSeq->array);
 	pSeq->array = NULL;
 	pSeq->capicity = 0;
+}
+
+void TestSeqList()
+{
+	Seqlist s;
+	int i = 0;
+	int random;
+	srand((unsigned)time(0));
+	SeqlistInit(&s);
+	for (i = 1; i <= N; i++)
+	{
+		//SeqlistPushFront(&s, i);
+		SeqlistPushFront(&s, rand() % 10 + 1);
+	}
+	//SeqlistPushFront(&s, 2);
+	//SeqlistPushFront(&s, 2);
+	//SeqlistPushFront(&s, 3);
+	//SeqlistPushFront(&s, 1);
+	//SeqlistPushFront(&s, 2);
+	SeqlistBubbleSort(&s);
+	//SeqlistSelectSort(&s);
+	SeqlistPrint(&s);
+	SeqlistBinarySearch(&s, 4);
+	SeqlistBinarySearch(&s, 11);
+	SeqlistRemoveAll(&s, 2);
+	SeqlistPrint(&s);
 }
