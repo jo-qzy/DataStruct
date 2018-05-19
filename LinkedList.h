@@ -155,3 +155,21 @@ void SListErase(SListNode** ppHead, SListNode* pos)
 	cur->_pNext = pos->_pNext;
 	free(pos);
 }
+
+void TestSList()
+{
+	ListNode* s = NULL;
+	ListNode* p = NULL;
+	int i = 0;
+	for (i = 0; i < 10; i++)
+	{
+		ListPushBack(&s, i);
+	}
+	ListPopBack(s);
+	ListPushFront(&s, i);
+	p = ListFind(s, 5);
+	ListInsert(&s, p, 5);
+	ListErase(&s, p);
+	ListPrint(s);
+	ListDestory(&s);
+}
