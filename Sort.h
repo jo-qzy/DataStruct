@@ -10,6 +10,7 @@
 void InsertSort(int* arr, size_t size);
 void ShellSort(int* arr, size_t size);
 void SelectSort(int* arr, size_t size);
+void BubbleSort(int* arr, size_t size);
 
 void Swap(int* x1, int* x2);
 void ResetArr(int* arr);
@@ -79,6 +80,27 @@ void SelectSort(int* arr, size_t size)
 	}
 }
 
+void BubbleSort(int* arr, size_t size)
+{
+	assert(arr);
+	while (size--)
+	{
+		int flag = 0;
+		for (int i = 0; i < size; i++)
+		{
+			if (*(arr + i) > *(arr + i + 1))
+			{
+				flag = 1;
+				Swap(arr + i, arr + i + 1);
+			}
+		}
+		if (flag == 0)
+		{
+			return;
+		}
+	}
+}
+
 void Swap(int* x1, int* x2)
 {
 	if (x1 == x2)
@@ -125,6 +147,10 @@ void TestSort()
 	ResetArr(arr);
 
 	InsertSort(arr, 10);
+	PrintArr(arr, 10);
+	ResetArr(arr);
+
+	BubbleSort(arr, 10);
 	PrintArr(arr, 10);
 	ResetArr(arr);
 }
