@@ -11,6 +11,7 @@ void InsertSort(int* arr, size_t size);
 void ShellSort(int* arr, size_t size);
 void SelectSort(int* arr, size_t size);
 void BubbleSort(int* arr, size_t size);
+void QuickSort(int* arr, int left, int right);
 
 void Swap(int* x1, int* x2);
 void ResetArr(int* arr);
@@ -101,6 +102,91 @@ void BubbleSort(int* arr, size_t size)
 	}
 }
 
+int QuickMove1(int* arr, int left, int right)
+{
+	assert(arr && left < right);
+	int key = arr[right];
+	int head = left;
+	int tail = right;
+	while (head < tail)
+	{
+		while (head < tail && *(arr + head) <= key)
+		{
+			head++;
+		}
+		while (head < tail && *(arr + tail) >= key)
+		{
+			tail--;
+		}
+		Swap(arr + head, arr + tail);
+	}
+	Swap(arr + head, arr + right);
+	return head;
+}
+
+int QuickMove2(int* arr, int left, int right)
+{
+	assert(arr && left < right);
+	int key = arr[right];
+	int head = left;
+	int tail = right;
+	while (head < tail)
+	{
+		while (head < tail && arr[head] <= key)
+		{
+			head++;
+		}
+		arr[tail] = arr[head];
+		while (head < tail && arr[tail] >= key)
+		{
+			tail--;
+		}
+		arr[head] = arr[tail];
+	}
+	arr[head] = key;
+	return head;
+}
+
+int QuickMove3(int* arr, int left, int right)
+{
+	assert(arr && left < right);
+	int key = arr[right];
+	int fast = left;
+	int slow = left - 1;
+	while (fast < right)
+	{
+		if (arr[fast] <= key)
+		{
+			slow++;
+			if (slow != fast)
+			{
+				Swap(arr + fast, arr + slow);
+			}
+		}
+		fast++;
+	}
+	slow++;
+	Swap(arr + slow, arr + right);
+	return slow;
+}
+
+void QuickSort(int* arr, int left, int right)
+{
+	assert(arr);
+	PrintArr(arr, 10);
+	int div = QuickMove3(arr, left, right);
+	if (left < div - 1)
+	{
+		printf("left:\n");
+		QuickSort(arr, left, div - 1);
+	}
+	if (right > div + 1)
+	{
+		printf("right:\n");
+		QuickSort(arr, div + 1, right);
+	}
+}
+
 void Swap(int* x1, int* x2)
 {
 	if (x1 == x2)
@@ -123,7 +209,7 @@ void ResetArr(int* arr)
 	*(arr + 6) = 5;
 	*(arr + 7) = 2;
 	*(arr + 8) = 8;
-	*(arr + 9) = 10;
+	*(arr + 9) = 5;
 }
 
 void PrintArr(int* arr, size_t size)
@@ -137,7 +223,7 @@ void PrintArr(int* arr, size_t size)
 
 void TestSort()
 {
-	int arr[10] = { 6,4,3,7,9,1,5,2,8,10 };
+	int arr[10] = { 6,4,3,7,9,1,5,2,8,5 };
 	SelectSort(arr, 10);
 	PrintArr(arr, 10);
 	ResetArr(arr);
@@ -151,6 +237,10 @@ void TestSort()
 	ResetArr(arr);
 
 	BubbleSort(arr, 10);
+	PrintArr(arr, 10);
+	ResetArr(arr);
+
+	QuickSort(arr, 0, 9);
 	PrintArr(arr, 10);
 	ResetArr(arr);
 }
