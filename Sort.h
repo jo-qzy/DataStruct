@@ -7,15 +7,23 @@
 
 
 
-void InsertSort(int* arr, size_t size);
-void ShellSort(int* arr, size_t size);
-void SelectSort(int* arr, size_t size);
-void BubbleSort(int* arr, size_t size);
-void QuickSort(int* arr, int left, int right);
+void InsertSort(int* arr, size_t size);//插入排序
+void ShellSort(int* arr, size_t size);//希尔排序
+void SelectSort(int* arr, size_t size);//选择排序
+void BubbleSort(int* arr, size_t size);//冒泡排序
+void QuickSort(int* arr, int left, int right);//快速排序
+static int PartSort1(int* arr, int left, int right);//左右指针法
+static int PartSort2(int* arr, int left, int right);//挖坑法
+static int PartSort3(int* arr, int left, int right);//右指针法
 
-void Swap(int* x1, int* x2);
-void ResetArr(int* arr);
-void PrintArr(int* arr, size_t size);
+void MergeSort(int* arr, int size);//归并排序
+static void PartMergeSort(int* arr, int left, int right, int* tmp);//部分归并
+
+static void Swap(int* x1, int* x2);
+static void ResetArr(int* arr);
+static void PrintArr(int* arr, size_t size);
+
+void TestSort();//测试用例
 
 void InsertSort(int* arr, size_t size)
 {
@@ -102,7 +110,7 @@ void BubbleSort(int* arr, size_t size)
 	}
 }
 
-int QuickMove1(int* arr, int left, int right)
+static int PartSort1(int* arr, int left, int right)
 {
 	assert(arr && left < right);
 	int key = arr[right];
@@ -110,6 +118,7 @@ int QuickMove1(int* arr, int left, int right)
 	int tail = right;
 	while (head < tail)
 	{
+		//左边找比Key大的数，右边找比Key小得数，交换
 		while (head < tail && *(arr + head) <= key)
 		{
 			head++;
@@ -124,7 +133,7 @@ int QuickMove1(int* arr, int left, int right)
 	return head;
 }
 
-int QuickMove2(int* arr, int left, int right)
+static int PartSort2(int* arr, int left, int right)
 {
 	assert(arr && left < right);
 	int key = arr[right];
@@ -132,6 +141,8 @@ int QuickMove2(int* arr, int left, int right)
 	int tail = right;
 	while (head < tail)
 	{
+		//挖坑，将Key值得位置当作坑，左右两边找，左边找到大的数就把数放到坑里，拿走的数的位置成为新的坑
+		//右边开始找小的数，找到放在右边的坑里，拿走数的位置成为新的坑，循环直至左右指针相遇
 		while (head < tail && arr[head] <= key)
 		{
 			head++;
@@ -147,21 +158,19 @@ int QuickMove2(int* arr, int left, int right)
 	return head;
 }
 
-int QuickMove3(int* arr, int left, int right)
+static int PartSort3(int* arr, int left, int right)
 {
 	assert(arr && left < right);
 	int key = arr[right];
 	int fast = left;
 	int slow = left - 1;
+	//一个快指针一个慢指针，快指针始终前进，慢指针只有在当前数小于Key才走
+	//当慢指针++后不等于快指针，则交换两数的位置
 	while (fast < right)
 	{
-		if (arr[fast] <= key)
+		if (arr[fast] <= key && ++slow != fast)
 		{
-			slow++;
-			if (slow != fast)
-			{
 				Swap(arr + fast, arr + slow);
-			}
 		}
 		fast++;
 	}
@@ -173,21 +182,65 @@ int QuickMove3(int* arr, int left, int right)
 void QuickSort(int* arr, int left, int right)
 {
 	assert(arr);
-	PrintArr(arr, 10);
-	int div = QuickMove3(arr, left, right);
+	int div = PartSort3(arr, left, right);
 	if (left < div - 1)
 	{
-		printf("left:\n");
+		//递归进行区间划分
 		QuickSort(arr, left, div - 1);
 	}
 	if (right > div + 1)
 	{
-		printf("right:\n");
 		QuickSort(arr, div + 1, right);
 	}
 }
 
-void Swap(int* x1, int* x2)
+void MergeSort(int* arr, int size)
+{
+	//归并需要临时空间
+	int* tmp = (int*)malloc(sizeof(int) * size);
+	PartMergeSort(arr, 0, size - 1, tmp);
+	free(tmp);
+}
+
+static void PartMergeSort(int* arr, int left, int right, int* tmp)
+{
+	if (left >= right)
+	{
+		return;
+	}
+	int mid = (left + right) / 2;//取中间数分成两部分递归进行归并
+	PartMergeSort(arr, left, mid, tmp);
+	PartMergeSort(arr, mid + 1, right, tmp);
+
+	int begin1 = left, end1 = mid;
+	int begin2 = mid + 1, end2 = right;
+	int index = left;
+	while (begin1 <= end1 && begin2 <= end2)
+	{
+		//从原数组中取数据，将其归并到临时空间中
+		if (arr[begin1] <= arr[begin2])
+		{
+			tmp[index++] = arr[begin1++];
+		}
+		else
+		{
+			tmp[index++] = arr[begin2++];
+		}
+	}
+	//由于两部分必定有一部分还没拷完，所以把剩下部分继续排在临时数组后面
+	if (begin1 <= end1)
+	{
+		memcpy(tmp + index, arr + begin1, sizeof(int) * (end1 - begin1 + 1));
+	}
+	else
+	{
+		memcpy(tmp + index, arr + begin2, sizeof(int) * (end2 - begin2 + 1));
+	}
+	//将临时空间的数据放回原数组
+	memcpy(arr + left, tmp + left, sizeof(int) * (right - left + 1));
+}
+
+static void Swap(int* x1, int* x2)
 {
 	if (x1 == x2)
 	{
@@ -198,7 +251,7 @@ void Swap(int* x1, int* x2)
 	*x1 ^= *x2;
 }
 
-void ResetArr(int* arr)
+static void ResetArr(int* arr)
 {
 	*(arr + 0) = 6;
 	*(arr + 1) = 4;
@@ -212,7 +265,7 @@ void ResetArr(int* arr)
 	*(arr + 9) = 5;
 }
 
-void PrintArr(int* arr, size_t size)
+static void PrintArr(int* arr, size_t size)
 {
 	for (size_t i = 0; i < size; i++)
 	{
@@ -224,6 +277,8 @@ void PrintArr(int* arr, size_t size)
 void TestSort()
 {
 	int arr[10] = { 6,4,3,7,9,1,5,2,8,5 };
+	PrintArr(arr, 10);
+	
 	SelectSort(arr, 10);
 	PrintArr(arr, 10);
 	ResetArr(arr);
@@ -243,4 +298,7 @@ void TestSort()
 	QuickSort(arr, 0, 9);
 	PrintArr(arr, 10);
 	ResetArr(arr);
+
+	MergeSort(arr, 10);
+	PrintArr(arr, 10);
 }
