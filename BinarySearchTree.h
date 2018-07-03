@@ -229,6 +229,7 @@ bool BSTreeRemoveNoR(BSTree** root, BSTreeDataType data)
 
 BSTree* BSTreeFind(BSTree* root, BSTreeDataType data)
 {
+	//递归查找
 	if (root == NULL)
 	{
 		return NULL;
@@ -249,6 +250,7 @@ BSTree* BSTreeFind(BSTree* root, BSTreeDataType data)
 
 BSTree* BSTreeFindNoR(BSTree* root, BSTreeDataType data)
 {
+	//非递归查找，前序遍历的非递归类似
 	BSTree* cur = root;
 	while (cur)
 	{
