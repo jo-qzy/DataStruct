@@ -260,14 +260,14 @@ void SeqlistBinarySearch(Seqlist *pSeq, DataType data)
 void V_SeqlistInit(V_Seqlist *pSeq, size_t capicity)
 {
 	pSeq->capicity = capicity;
-	pSeq->array = (DataType*)melloc(pSeq->capicity * sizeof(DataType));
+	pSeq->array = (DataType*)malloc(pSeq->capicity * sizeof(DataType));
 }
 
 void V_SeqlistPushBack(V_Seqlist *pSeq, DataType data)
 {
 	if (pSeq->_size == pSeq->capicity)
 	{
-		pSeq->array = (DataType*)relloc(pSeq->capicity * 2 * sizeof(DataType));
+		pSeq->array = (DataType*)realloc(pSeq->capicity * 2 * sizeof(DataType));
 		pSeq->capicity *= 2;
 	}
 	pSeq->array[pSeq->_size] = data;
