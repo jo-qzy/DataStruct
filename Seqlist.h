@@ -1,10 +1,10 @@
 //数据结构：顺序表练习，实现增删查改，以及排序等操作
-#pragma once
 
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 
 typedef int DataType;
 #define N 10
@@ -42,7 +42,7 @@ typedef struct V_Seqlist
 	size_t capicity;
 }V_Seqlist;
 
-void V_SeqlistInit(V_Seqlist *pSeq,size_t capicity);//动态表初始化化
+void V_SeqlistInit(V_Seqlist *pSeq, size_t capicity);//动态表初始化化
 void V_SeqlistPushBack(V_Seqlist *pSeq, DataType data);//在最后添加元素
 void V_SeqlistDestroy(V_Seqlist *pSeq);//销毁动态表
 
@@ -211,7 +211,7 @@ void SeqlistSelectSort(Seqlist *pSeq)
 {
 	assert(pSeq);
 	int i = 0, j = 0;
-	int min= 0;
+	int min = 0;
 	for (i = 0; i < pSeq->_size; i++)
 	{
 		int tmp;
@@ -267,7 +267,7 @@ void V_SeqlistPushBack(V_Seqlist *pSeq, DataType data)
 {
 	if (pSeq->_size == pSeq->capicity)
 	{
-		pSeq->array = (DataType*)realloc(pSeq->capicity * 2 * sizeof(DataType));
+		pSeq->array = (DataType*)realloc(pSeq->capicity, pSeq->capicity * 2 * sizeof(DataType));
 		pSeq->capicity *= 2;
 	}
 	pSeq->array[pSeq->_size] = data;
@@ -305,4 +305,10 @@ void TestSeqList()
 	SeqlistBinarySearch(&s, 11);
 	SeqlistRemoveAll(&s, 2);
 	SeqlistPrint(&s);
+}
+
+int main()
+{
+	TestSeqList();
+	return 0;
 }
