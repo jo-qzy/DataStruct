@@ -1,6 +1,4 @@
-//配合Queue.h使用
-//面试题
-//两个队列实现一个栈
+//鐢变簬鏄疌璇█鍐欑殑锛岄渶瑕侀厤鍚圦ueue.h浣跨敤
 typedef struct QueueStack
 {
 	Queue* _q1;
